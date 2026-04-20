@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="panel login-panel">
+  <h2>登录</h2>
+  <p>普通用户只允许查看数据，管理员账号可执行新增、修改、删除、购买和重建数据库。</p>
+  <form method="post" action="{{ url_for('login', next=request.args.get('next', '')) }}">
+    <label>用户名
+      <input name="username" required placeholder="admin 或 viewer">
+    </label>
+    <label>密码
+      <input name="password" type="password" required placeholder="请输入密码">
+    </label>
+    <button type="submit">登录</button>
+  </form>
+  <p class="hint">演示账号：admin / admin123；viewer / viewer123</p>
+</section>
+{% endblock %}

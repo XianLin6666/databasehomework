@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="hero panel">
+  <p class="eyebrow">Campus Trading Dashboard</p>
+  <h2>可视化管理你的数据库作业系统</h2>
+  <p>从基础表结构到业务事务，这个页面是所有模块的总览入口。</p>
+</section>
+
+<section class="cards">
+  <article><h3>商品总数</h3><p>{{ stats.item_total }}</p></article>
+  <article><h3>订单总数</h3><p>{{ stats.order_total }}</p></article>
+  <article><h3>未售商品</h3><p>{{ stats.unsold_total }}</p></article>
+  <article><h3>商品均价</h3><p>{{ stats.avg_price }}</p></article>
+</section>
+
+<section class="panel">
+  <h2>系统说明</h2>
+  <p>该系统已完成：三表结构、完整约束、增删改查、连接查询、聚合分组、视图与购买业务逻辑。</p>
+  {% if is_admin %}
+    <form method="post" action="{{ url_for('reset_db') }}">
+      <button type="submit">重建数据库并恢复初始数据</button>
+    </form>
+  {% else %}
+    <p class="hint">重建数据库属于写操作，请先用管理员账号登录。</p>
+  {% endif %}
+</section>
+{% endblock %}

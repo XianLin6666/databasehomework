@@ -1,0 +1,117 @@
+<section class="panel">
+  <h3>基本查询</h3>
+  <h4>1. 所有未售出的商品</h4>
+  {% set rows = basic.unsold_items %}
+  {% include '_dynamic_table.html' %}
+
+  <h4>2. 价格大于指定阈值的商品</h4>
+  <form method="get" class="query-form-inline">
+    <label>价格大于
+      <input type="number" name="price_gt" step="0.01" min="0" value="{{ filters.price_threshold }}">
+    </label>
+    <input type="hidden" name="category" value="{{ filters.category }}">
+    <input type="hidden" name="seller_id" value="{{ filters.seller_id }}">
+    <button type="submit">应用</button>
+  </form>
+  {% set rows = basic.price_dynamic %}
+  {% include '_dynamic_table.html' %}
+
+  <h4>3. 查询指定类别商品</h4>
+  <form method="get" class="query-form-inline">
+    <label>商品类别
+      <select name="category">
+        {% for c in filters.categories %}
+          <option value="{{ c }}" {% if c == filters.category %}selected{% endif %}>{{ c }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <input type="hidden" name="price_gt" value="{{ filters.price_threshold }}">
+    <input type="hidden" name="seller_id" value="{{ filters.seller_id }}">
+    <button type="submit">应用</button>
+  </form>
+  {% set rows = basic.category_dynamic %}
+  {% include '_dynamic_table.html' %}
+
+  <h4>4. 查询指定用户发布的商品</h4>
+  <form method="get" class="query-form-inline">
+    <label>发布用户
+      <select name="seller_id">
+        {% for u in filters.users %}
+          <option value="{{ u.user_id }}" {% if u.user_id == filters.seller_id %}selected{% endif %}>
+            {{ u.user_id }} - {{ u.user_name }}
+          </option>
+        {% endfor %}
+      </select>
+    </label>
+    <input type="hidden" name="price_gt" value="{{ filters.price_threshold }}">
+    <input type="hidden" name="category" value="{{ filters.category }}">
+    <button type="submit">应用</button>
+  </form>
+  {% set rows = basic.seller_dynamic %}
+  {% include '_dynamic_table.html' %}
+</section>
+
+<section class="panel">
+  <h3>连接查询</h3>
+  <h4>1. 已售商品及其买家姓名</h4>
+  {% set rows = joins.sold_with_buyer %}
+  {% include '_dynamic_table.html' %}
+
+  <h4>2. 每个订单：商品名 + 买家名 + 日期</h4>
+  {% set rows = joins.order_detail %}
+  {% include '_dynamic_table.html' %}
+
+  <h4>3. 卖家为 u001 的商品是否被购买</h4>
+  {% set rows = joins.u001_items_purchased %}
+  {% include '_dynamic_table.html' %}
+</section>
+
+<section class="panel">
+  <h3>聚合与分组</h3>
+  <h4>1. 商品总数</h4>
+  {% set rows = aggs.item_total %}
+  {% include '_dynamic_table.html' %}
+
+  <h4>2. 每类商品数量</h4>
+  {% set rows = aggs.category_count %}
+  {% include '_dynamic_table.html' %}
+
+  <h4>3. 所有商品平均价格</h4>
+  {% set rows = aggs.avg_price %}
+  {% include '_dynamic_table.html' %}
+
+  <h4>4. 发布商品数量最多的用户（并列第一全部展示）</h4>
+  {% set rows = aggs.top_seller %}
+  {% include '_dynamic_table.html' %}
+</section>
+
+<section class="panel">
+  <h3>统计图可视化</h3>
+  <div class="chart-grid">
+    <article>
+      <h4>每类商品数量（条形图）</h4>
+      <canvas id="categoryBar"></canvas>
+    </article>
+    <article>
+      <h4>商品价格趋势（折线图）</h4>
+      <canvas id="priceLine"></canvas>
+    </article>
+    <article>
+      <h4>已售/未售占比（扇形图）</h4>
+      <canvas id="statusPie"></canvas>
+    </article>
+  </div>
+</section>
+
+<section class="panel">
+  <h3>视图查询</h3>
+  <h4>1. 已售商品视图（商品名 + 买家ID）</h4>
+  {% set rows = views.sold_view %}
+  {% include '_dynamic_table.html' %}
+
+  <h4>2. 未售商品视图</h4>
+  {% set rows = views.unsold_view %}
+  {% include '_dynamic_table.html' %}
+</section>
+
+<script id="chart-data-json" type="application/json">{{ chart_data | tojson }}</script>

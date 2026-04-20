@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>商品列表</h2>
+<table>
+  <thead>
+    <tr>
+      <th>item_id</th><th>item_name</th><th>category</th><th>price</th><th>status</th><th>seller_id</th><th>seller_name</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for i in items %}
+      <tr>
+        <td>{{ i.item_id }}</td>
+        <td>{{ i.item_name }}</td>
+        <td>{{ i.category }}</td>
+        <td>{{ i.price }}</td>
+        <td>{{ '未售出' if i.status == 0 else '已售出' }}</td>
+        <td>{{ i.seller_id }}</td>
+        <td>{{ i.seller_name }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if is_admin %}
+  <section class="grid-2">
+    <form method="post" class="panel">
+      <h3>插入新商品（status 自动为 0）</h3>
+      <input type="hidden" name="action" value="add_item">
+      <label>商品名<input name="item_name" required></label>
+      <label>分类<input name="category" required></label>
+      <label>价格<input name="price" type="number" step="0.01" min="0.01" required></label>
+      <label>卖家
+        <select name="seller_id" required>
+          {% for u in users %}
+            <option value="{{ u.user_id }}">{{ u.user_id }} - {{ u.user_name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <button type="submit">新增商品</button>
+    </form>
+
+    <form method="post" class="panel">
+      <h3>修改某商品价格</h3>
+      <input type="hidden" name="action" value="update_price">
+      <label>商品ID<input name="item_id" required></label>
+      <label>新价格<input name="new_price" type="number" step="0.01" min="0.01" required></label>
+      <button type="submit">修改价格</button>
+    </form>
+
+    <form method="post" class="panel">
+      <h3>删除未售出的商品</h3>
+      <input type="hidden" name="action" value="delete_unsold">
+      <label>商品ID<input name="item_id" required></label>
+      <button type="submit">删除未售商品</button>
+    </form>
+
+    <form method="post" class="panel">
+      <h3>购买商品（SQL 业务逻辑）</h3>
+      <input type="hidden" name="action" value="purchase">
+      <label>买家
+        <select name="buyer_id" required>
+          {% for u in users %}
+            <option value="{{ u.user_id }}">{{ u.user_id }} - {{ u.user_name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>商品ID<input name="item_id" required placeholder="例如 i001"></label>
+      <button type="submit">执行购买</button>
+    </form>
+  </section>
+{% else %}
+  <section class="panel">
+    <p class="hint">当前是只读模式。请登录管理员账号后执行新增、改价、删除、购买等写操作。</p>
+  </section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,22 @@
+{% if rows and rows|length > 0 %}
+  <table>
+    <thead>
+      <tr>
+        {% for k in rows[0].keys() %}
+          <th>{{ k }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+        <tr>
+          {% for k in row.keys() %}
+            <td>{{ row[k] }}</td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>暂无数据</p>
+{% endif %}

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>订单列表</h2>
+<table>
+  <thead>
+    <tr><th>order_id</th><th>item_id</th><th>item_name</th><th>buyer_id</th><th>buyer_name</th><th>order_date</th></tr>
+  </thead>
+  <tbody>
+    {% for o in orders %}
+      <tr>
+        <td>{{ o.order_id }}</td>
+        <td>{{ o.item_id }}</td>
+        <td>{{ o.item_name }}</td>
+        <td>{{ o.buyer_id }}</td>
+        <td>{{ o.buyer_name }}</td>
+        <td>{{ o.order_date }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

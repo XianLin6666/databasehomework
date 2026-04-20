@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>查询结果展示</h2>
+<div id="queries-content">
+  {% include '_queries_content.html' %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const axisColor = "#3a556f";
+  const gridColor = "rgba(76, 108, 138, 0.2)";
+  let queryCharts = [];
+
+  function destroyQueryCharts() {
+    queryCharts.forEach((chart) => chart.destroy());
+    queryCharts = [];
+  }
+
+  function renderQueryCharts() {
+    const dataNode = document.getElementById("chart-data-json");
+    if (!dataNode) return;
+
+    const chartData = JSON.parse(dataNode.textContent);
+    destroyQueryCharts();
+
+    queryCharts.push(new Chart(document.getElementById("categoryBar"), {
+      type: "bar",
+      data: {
+        labels: chartData.category_labels,
+        datasets: [{
+          label: "商品数量",
+          data: chartData.category_counts,
+          backgroundColor: ["#0f8b8d", "#205295", "#3a9d9f", "#4f8fc0", "#8ab6d6"]
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: axisColor }, grid: { color: gridColor } },
+          y: { beginAtZero: true, ticks: { color: axisColor }, grid: { color: gridColor } }
+        }
+      }
+    }));
+
+    queryCharts.push(new Chart(document.getElementById("priceLine"), {
+      type: "line",
+      data: {
+        labels: chartData.price_labels,
+        datasets: [{
+          label: "价格",
+          data: chartData.price_values,
+          borderColor: "#205295",
+          backgroundColor: "rgba(32,82,149,0.18)",
+          tension: 0.35,
+          fill: true
+        }]
+      },
+      options: {
+        scales: {
+          x: { ticks: { color: axisColor }, grid: { color: gridColor } },
+          y: { beginAtZero: true, ticks: { color: axisColor }, grid: { color: gridColor } }
+        }
+      }
+    }));
+
+    queryCharts.push(new Chart(document.getElementById("statusPie"), {
+      type: "pie",
+      data: {
+        labels: chartData.status_labels,
+        datasets: [{
+          data: chartData.status_values,
+          backgroundColor: ["#1f8a70", "#f0a500"]
+        }]
+      }
+    }));
+  }
+
+  async function refreshQueries(form) {
+    const queryContent = document.getElementById("queries-content");
+    const params = new URLSearchParams(new FormData(form));
+    const queryString = params.toString();
+    queryContent.classList.add("is-loading");
+
+    try {
+      const response = await fetch(`/queries?${queryString}&partial=1`, {
+        headers: { "X-Requested-With": "XMLHttpRequest" }
+      });
+      if (!response.ok) throw new Error("request failed");
+      queryContent.innerHTML = await response.text();
+      history.replaceState({}, "", `/queries?${queryString}`);
+      bindQueryForms();
+      renderQueryCharts();
+      if (window.applyReveal) window.applyReveal(queryContent);
+    } catch (error) {
+      window.location.href = `/queries?${queryString}`;
+    } finally {
+      queryContent.classList.remove("is-loading");
+    }
+  }
+
+  function bindQueryForms() {
+    document.querySelectorAll("#queries-content .query-form-inline").forEach((form) => {
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        refreshQueries(form);
+      });
+    });
+  }
+
+  bindQueryForms();
+  renderQueryCharts();
+  if (window.applyReveal) window.applyReveal(document.getElementById("queries-content"));
+</script>
+{% endblock %}
