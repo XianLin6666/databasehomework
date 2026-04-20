@@ -57,6 +57,27 @@ def init_db() -> None:
         conn.close()
 
 
+def ensure_db_ready() -> None:
+    if app.config.get("_DB_READY", False):
+        return
+
+    database = app.config.get("DATABASE", str(DB_PATH))
+    # In-memory DB (used in tests) is initialized explicitly by test setup.
+    if isinstance(database, str) and database.startswith("file:"):
+        app.config["_DB_READY"] = True
+        return
+
+    db_file = Path(str(database))
+    if not db_file.exists():
+        init_db()
+    app.config["_DB_READY"] = True
+
+
+@app.before_request
+def prepare_database() -> None:
+    ensure_db_ready()
+
+
 def generate_next_id(prefix: str, table: str, id_col: str) -> str:
     db = get_db()
     row = db.execute(
